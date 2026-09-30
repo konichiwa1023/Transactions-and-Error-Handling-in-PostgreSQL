@@ -1,0 +1,9 @@
+-- Update records to indicate nontransactionals over 100,000,000
+UPDATE ffiec_reci
+SET FIELD48 = '1'
+WHERE RCONB550 > 100000000;
+
+-- Select a count of records where the flag field is not '1'
+SELECT COUNT(*)
+FROM ffiec_reci
+WHERE FIELD48 != '1' OR FIELD48 IS NULL;
