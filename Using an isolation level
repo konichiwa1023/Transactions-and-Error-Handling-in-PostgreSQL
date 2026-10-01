@@ -1,0 +1,17 @@
+-- Create a new transaction with an isolation level of repeatable read
+
+START TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+-- Select all the records with RCON2210 over $100,000,000 in demands deposits
+SELECT COUNT(RCON2210)
+FROM ffiec_reci
+WHERE RCON2210 > 100000000;
+
+-- Select all the records with RCON2210 still over $100,000,000 in demands deposits
+SELECT COUNT(RCON2210)
+FROM ffiec_reci
+WHERE RCON2210 > 100000000;
+
+-- Commit the transaction
+
+COMMIT;
