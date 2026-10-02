@@ -1,0 +1,14 @@
+BEGIN;
+
+-- Set the flag to indicate that they hold MMDAs where more than $5 million
+UPDATE ffiec_reci 
+SET FIELD48 = 'MMDA' 
+WHERE RCON6810 > 5000000;
+
+-- Set a savepoint
+SAVEPOINT mmda_flag_set;
+
+-- Rollback the whole transaction
+ROLLBACK;
+
+COMMIT;
