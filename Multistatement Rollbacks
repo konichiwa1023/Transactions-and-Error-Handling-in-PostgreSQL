@@ -1,0 +1,26 @@
+-- Begin a new transaction
+BEGIN;
+
+-- Update FIELD48 flag status if US State Government deposits are held
+UPDATE ffiec_reci
+SET FIELD48 = 'US-STATE-GOV'
+WHERE RCON2203 > 0;
+
+-- Update FIELD48 flag status if Foreign deposits are held
+UPDATE ffiec_reci
+SET FIELD48 = 'FOREIGN'
+WHERE RCON2236 > 0;
+
+-- Update FIELD48 flag status if US State Government and Foreign deposits are held
+UPDATE ffiec_reci
+SET FIELD48 = 'BOOTH'
+WHERE RCON2236 > 0
+AND RCON2203 > 0;
+
+-- Undo the mistake
+ROLLBACK;
+
+-- Select a count of records that are booth (it should be 0)
+SELECT COUNT(FIELD48)
+FROM ffiec_reci
+WHERE FIELD48 = 'BOOTH';
