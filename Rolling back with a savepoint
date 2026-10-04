@@ -1,0 +1,24 @@
+BEGIN;
+
+-- Set the flag to MMDA+ where the value is greater than $6 million
+UPDATE ffiec_reci
+SET FIELD48 = 'MMDA+'
+WHERE RCON6810 > 6000000;
+
+-- Set a Savepoint
+SAVEPOINT mmdaplus_flag_set;
+
+-- Mistakenly set the flag to MMDA+ where the value is greater than $5 million
+UPDATE ffiec_reci
+SET FIELD48 = 'MMDA+'
+WHERE RCON6810 > 5000000;
+
+-- Rollback to savepoint
+ROLLBACK TO mmdaplus_flag_set;
+
+COMMIT;
+
+-- Select count of records where the flag is MMDA+
+SELECT count(FIELD48)
+FROM ffiec_reci
+WHERE FIELD48 = 'MMDA+';
