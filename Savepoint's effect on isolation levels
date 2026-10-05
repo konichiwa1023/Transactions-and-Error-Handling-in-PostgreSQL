@@ -1,0 +1,31 @@
+-- Create a new transaction with a repeatable read isolation level
+START TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+-- Update records with a 35% reduction if greater than 1000000000
+UPDATE ffiec_reci
+SET RCON2203 = CAST(RCON2203 AS FLOAT) * .65
+WHERE CAST(RCON2203 AS FLOAT) > 1000000000;
+
+-- Correct savepoint name after the first update
+SAVEPOINT million;
+
+-- Update records with a 25% reduction if greater than 500000000
+UPDATE ffiec_reci
+SET RCON2203 = CAST(RCON2203 AS FLOAT) * .75
+WHERE CAST(RCON2203 AS FLOAT) > 500000000;
+
+SAVEPOINT five_hundred;
+
+-- Update records with a 13% reduction if greater than 300000000
+UPDATE ffiec_reci
+SET RCON2203 = CAST(RCON2203 AS FLOAT) * .87
+WHERE CAST(RCON2203 AS FLOAT) > 300000000;
+
+SAVEPOINT three_hundred;
+
+-- Commit the transaction
+COMMIT;
+
+-- Select SUM the RCON2203 field
+SELECT SUM(CAST(RCON2203 AS FLOAT))
+FROM ffiec_reci;
