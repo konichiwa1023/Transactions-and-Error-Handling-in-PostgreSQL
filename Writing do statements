@@ -1,0 +1,19 @@
+-- Create a DO $$ function
+DO $$
+-- BEGIN a transaction block
+BEGIN 
+   INSERT INTO patients (a1c, glucose, fasting, created_on) 
+   VALUES (5.8, 89, TRUE, '37-03-2020 01:15:54');
+
+-- Add an EXCEPTION
+EXCEPTION
+-- For all other type of errors
+WHEN others THEN 
+   INSERT INTO errors (msg, detail) 
+   VALUES ('failed to insert', 'bad date');
+END;
+-- Make sure to specify the language
+$$ LANGUAGE 'plpgsql';
+
+-- Select all the errors recorded
+SELECT * FROM errors;
