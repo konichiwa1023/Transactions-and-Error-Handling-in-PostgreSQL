@@ -1,0 +1,23 @@
+-- Add a DO function
+DO $$ 
+-- BEGIN a transaction block
+BEGIN
+    INSERT INTO patients (a1c, glucose, fasting) 
+    values (20, 89, TRUE);
+
+-- Add an EXCEPTION                   
+EXCEPTION 
+-- Catch all exception types
+WHEN others THEN
+    INSERT INTO errors (msg, detail, context) VALUES 
+  (
+    'failed to insert', 
+    'This a1c value is higher than clinically accepted norms.', 
+    'a1c is typically less than 14'
+  );
+END;
+-- Make sure to specify the language
+$$ language 'plpgsql';
+
+-- Select all the errors recorded
+SELECT * FROM errors;
