@@ -1,0 +1,36 @@
+
+-- Make a DO function
+DO $$
+-- Open a transaction block
+BEGIN
+    -- Open a nested block
+    BEGIN
+        INSERT INTO patients (a1c, glucose, fasting)
+        VALUES (5.6, 93, TRUE),
+               (6.3, 111, TRUE),
+               (4.7, 65, TRUE);
+
+    -- Catch all exception types
+    EXCEPTION WHEN others THEN
+        INSERT INTO errors (msg) VALUES ('failed to insert');
+    -- End nested block
+    END;
+
+    -- Begin the second nested block
+    BEGIN
+        UPDATE patients
+        SET fasting = 'true'
+        WHERE id = 1;
+
+    -- Catch all exception types
+    EXCEPTION WHEN others THEN
+        INSERT INTO errors (msg)
+        VALUES ('Inserted string into boolean.');
+    -- End the second nested block
+    END;
+
+-- END the outer block
+END;
+$$ LANGUAGE 'plpgsql';
+
+SELECT * FROM errors;
