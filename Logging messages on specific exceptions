@@ -1,0 +1,20 @@
+-- Make a DO function
+DO $$
+BEGIN
+    INSERT INTO patients (a1c, glucose, fasting)
+    VALUES (20, NULL, TRUE);
+
+EXCEPTION
+    -- Catch check_violation exception types
+    WHEN check_violation THEN
+        INSERT INTO errors (msg, detail)
+        VALUES ('failed to insert', 'A1C is higher than clinically accepted norms.');
+
+    -- Catch not_null_violation exception types
+    WHEN not_null_violation THEN
+        INSERT INTO errors (msg, detail)
+        VALUES ('failed to insert', 'Glucose can not be null.');
+END$$;
+
+-- Select all the errors recorded
+SELECT * FROM errors;
