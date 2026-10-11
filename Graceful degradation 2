@@ -1,0 +1,23 @@
+DO $$
+BEGIN
+    -- Insert the data into patients
+    INSERT INTO patients (a1c, glucose, fasting)
+    VALUES (20, 800, False);
+
+EXCEPTION WHEN check_violation THEN
+    -- Record the violation
+    INSERT INTO errors (msg)
+    VALUES ('This A1C is not valid, should be between 0-13');
+
+    -- Insert the max A1C value
+    INSERT INTO patients (a1c, glucose, fasting)
+    VALUES (13, 800, False);
+
+    -- Record the override
+    INSERT INTO errors (msg)
+    VALUES ('Set A1C to the maximum of 13');
+
+END;
+$$ LANGUAGE 'plpgsql';
+
+SELECT * FROM errors;
