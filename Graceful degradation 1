@@ -1,0 +1,15 @@
+DO $$
+BEGIN
+    -- Insert the data into patients
+    INSERT INTO patients (a1c, glucose, fasting)
+    VALUES (20, 800, False);
+
+EXCEPTION WHEN check_violation THEN
+    -- Record the error
+    INSERT INTO errors (msg)
+    VALUES ('This A1C is not valid, should be between 0-13');
+
+END;
+$$ LANGUAGE 'plpgsql';
+
+SELECT * FROM errors;
