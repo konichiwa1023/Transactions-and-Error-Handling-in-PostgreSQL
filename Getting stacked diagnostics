@@ -1,0 +1,25 @@
+
+DO $$
+DECLARE
+    -- Declare our text variables: exc_message and exc_detail
+    exc_message text;
+    exc_detail text;
+BEGIN
+    INSERT INTO patients (a1c, glucose, fasting)
+    VALUES (20, 89, TRUE);
+
+EXCEPTION
+    WHEN others THEN
+        -- Get the exception message and detail via stacked diagnostics
+        GET STACKED DIAGNOSTICS
+            exc_message = MESSAGE_TEXT,
+            exc_detail = PG_EXCEPTION_DETAIL;
+
+        -- Record the exception message and detail in the errors table
+        INSERT INTO errors (msg, detail)
+        VALUES (exc_message, exc_detail);
+END;
+$$ LANGUAGE 'plpgsql';
+
+-- Select all the errors recorded
+SELECT * FROM errors;
