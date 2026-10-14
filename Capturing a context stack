@@ -1,0 +1,38 @@
+DO $$
+DECLARE
+    exc_message text;
+    exc_details text;
+    exc_context text;
+BEGIN
+    BEGIN
+        INSERT INTO patients (a1c, glucose, fasting)
+        VALUES (5.6, 93, TRUE),
+               (6.3, 111, TRUE),
+               (4.7, 65, TRUE);
+    EXCEPTION
+        WHEN others THEN
+            GET STACKED DIAGNOSTICS
+                exc_message = MESSAGE_TEXT,
+                exc_context = PG_EXCEPTION_CONTEXT;
+
+            INSERT INTO errors (msg, context)
+            VALUES (exc_message, exc_context);
+    END;
+
+    BEGIN
+        UPDATE patients
+        SET fasting = 'true'
+        WHERE id = 1;
+    EXCEPTION
+        WHEN others THEN
+            GET STACKED DIAGNOSTICS
+                exc_message = MESSAGE_TEXT,
+                exc_details = PG_EXCEPTION_DETAIL;
+
+            INSERT INTO errors (msg, context)
+            VALUES (exc_message, exc_context);
+    END;
+END
+$$;
+
+SELECT * FROM errors;
