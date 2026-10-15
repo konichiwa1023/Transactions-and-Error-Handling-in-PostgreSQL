@@ -1,0 +1,37 @@
+-- Define our function signature
+CREATE OR REPLACE FUNCTION debug_statement(
+    sql_stmt TEXT
+)
+-- Declare our return type
+RETURNS BOOLEAN AS $$
+    DECLARE
+        exc_state   TEXT;
+        exc_msg     TEXT;
+        exc_detail  TEXT;
+        exc_context TEXT;
+    BEGIN
+        BEGIN
+            -- Execute the statement passed in
+            EXECUTE sql_stmt;
+        EXCEPTION WHEN others THEN
+            GET STACKED DIAGNOSTICS
+                exc_state   = RETURNED_SQLSTATE,
+                exc_msg     = MESSAGE_TEXT,
+                exc_detail  = PG_EXCEPTION_DETAIL,
+                exc_context = PG_EXCEPTION_CONTEXT;
+
+            INSERT INTO errors (msg, state, detail, context)
+            VALUES (exc_msg, exc_state, exc_detail, exc_context);
+
+            -- Return True to indicate the statement was debugged
+            RETURN TRUE;
+        END;
+
+        -- Return False to indicate the statement was not debugged
+        RETURN FALSE;
+    END;
+$$ LANGUAGE plpgsql;
+
+SELECT debug_statement(
+    'INSERT INTO patients (a1c, glucose, fasting) VALUES (20, 89, TRUE);'
+);
