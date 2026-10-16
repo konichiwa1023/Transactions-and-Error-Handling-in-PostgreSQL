@@ -1,0 +1,30 @@
+BEGIN;
+
+-- Update FIELD48 to indicate a positive maturity rating when less than $500 thousand.
+UPDATE ffiec_reci
+SET FIELD48 = 'mature+'
+WHERE RCONHK12 + RCONHK13 < 500000;
+
+-- Set a savepoint
+SAVEPOINT matureplus_flag_set;
+
+-- Update FIELD48 to indicate a negative maturity rating when between $500 thousand and $1 million.
+UPDATE ffiec_reci
+SET FIELD48 = 'mature-'
+WHERE RCONHK12 + RCONHK13 BETWEEN 500000 AND 1000000;
+
+-- Set a savepoint
+SAVEPOINT matureminus_flag_set;
+
+-- Accidentally update FIELD48 to indicate a double negative maturity rating when more than 100K.
+UPDATE ffiec_reci
+SET FIELD48 = 'mature--'
+WHERE RCONHK12 + RCONHK13 > 100000;
+
+-- Rollback to before the last mistake
+ROLLBACK TO matureminus_flag_set;
+
+-- Select count of records with a double negative indicator
+SELECT count(FIELD48)
+FROM ffiec_reci
+WHERE FIELD48 = 'mature--';
