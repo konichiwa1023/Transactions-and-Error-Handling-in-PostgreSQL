@@ -1,0 +1,15 @@
+-- Start a transaction with the repeatable read isolation level
+START TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+-- Update records for banks that allow consumer deposit accounts
+UPDATE ffiec_reci
+SET FIELD48 = 100
+WHERE RCONP752 = 'true';
+
+-- Update records for banks that do not allow consumer deposit accounts
+UPDATE ffiec_reci
+SET FIELD48 = 50
+WHERE RCONP752 = 'false';
+
+-- End the transaction
+COMMIT;
