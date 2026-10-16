@@ -1,0 +1,12 @@
+DO $$
+BEGIN
+    INSERT INTO patients (a1c, glucose, fasting)
+    VALUES (7.5, NULL, TRUE);
+
+EXCEPTION
+    WHEN not_null_violation THEN
+        INSERT INTO errors (msg, detail)
+        VALUES ('failed to insert', 'Glucose can not be null.');
+END$$;
+
+SELECT * FROM errors;
